@@ -5,32 +5,66 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
-   <children>
-      <Text layoutX="-27.0" layoutY="125.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Mall &amp; Brand Management System" textAlignment="CENTER" wrappingWidth="654.21630859375">
-         <font>
-            <Font name="Al Bayan Bold" size="30.0" />
-         </font>
-      </Text>
-      <Button layoutX="191.0" layoutY="161.0" mnemonicParsing="false" onAction="#MANAGER_btn" text="MANAGER OPERATIONS" textAlignment="CENTER">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
+    <children>
+        <Text layoutX="23.0" layoutY="70.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Mall &amp; Brand Management System" textAlignment="CENTER" wrappingWidth="654.21630859375">
+            <font>
+                <Font name="Al Bayan Bold" size="30.0" />
+            </font>
+        </Text>
+
+        <!-- Manager Operations Button -->
+        <Button layoutX="50.0" layoutY="120.0" mnemonicParsing="false" onAction="#MANAGER_btn" prefWidth="280.0" text="MANAGER OPERATIONS" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <!-- Customer Operations Button -->
+        <Button layoutX="370.0" layoutY="120.0" mnemonicParsing="false" onAction="#CUSTOMER_btn" prefWidth="280.0" text="CUSTOMER OPERATIONS" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <!-- Mall Operations Button -->
+        <Button layoutX="50.0" layoutY="180.0" mnemonicParsing="false" onAction="#MALL_btn" prefWidth="280.0" text="MALL OPERATIONS" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <!-- Brand Store Operations Button -->
+        <Button layoutX="370.0" layoutY="180.0" mnemonicParsing="false" onAction="#BRANDSTORE_btn" prefWidth="280.0" text="BRAND STORE OPERATIONS" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <!-- Product Operations Button -->
+        <Button layoutX="50.0" layoutY="240.0" mnemonicParsing="false" onAction="#PRODUCT_btn" prefWidth="280.0" text="PRODUCT OPERATIONS" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <!-- Purchase (Buys) Operations Button -->
+        <Button layoutX="370.0" layoutY="240.0" mnemonicParsing="false" onAction="#BUYS_btn" prefWidth="280.0" text="PURCHASE OPERATIONS" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <!-- Exit Button -->
+        <Button layoutX="275.0" layoutY="520.0" mnemonicParsing="false" onAction="#exitApplication" prefWidth="150.0" text="EXIT" textAlignment="CENTER">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+      <Button layoutX="210.0" layoutY="300.0" mnemonicParsing="false" onAction="#BRAND_btn" prefWidth="280.0" text="BRAND OPERATIONS" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Button>
-      <Button layoutX="204.0" layoutY="215.0" mnemonicParsing="false" onAction="#BRAND_btn" text="BRAND OPERATIONS" textAlignment="CENTER">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Button>
-      <Button layoutX="185.0" layoutY="270.0" mnemonicParsing="false" onAction="#CUSTOMER_btn" text="CUSTOMER OPERATIONS" textAlignment="CENTER">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Button>
-      <Button layoutX="210.0" layoutY="328.0" mnemonicParsing="false" onAction="#MALL_btn" text="MALL OPERATIONS" textAlignment="CENTER">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Button>
-   </children>
+    </children>
 </AnchorPane>
