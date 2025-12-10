@@ -1,4 +1,4 @@
-package controllers;
+
 
 import Exceptions.BrandStillUsedException;
 import database.BrandDAO;
