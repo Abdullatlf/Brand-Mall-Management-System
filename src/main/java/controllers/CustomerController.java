@@ -107,6 +107,7 @@ public class CustomerController implements Initializable {
             customerSsn = ssnTextField.getText().trim();
             customerName = nameTextField.getText().trim();
             customerPhone = phoneTextField.getText().trim();
+            int interger = Integer.parseInt(customerPhone);
             if (customerSsn.isEmpty() || customerName.isEmpty() || customerPhone.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
@@ -118,7 +119,11 @@ public class CustomerController implements Initializable {
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Customer added successfully!");
             }
-        } catch (SQLException e) {
+        }catch (NumberFormatException e) {
+            MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
+            successLabel.setTextFill(Color.RED);
+            successLabel.setText("Invalid Phone Number!");
+        }catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
                 MainController.showError("Error", "Addition Failed", "Failed to add customer because already exists! Please try again.");
                 successLabel.setTextFill(Color.RED);
@@ -162,6 +167,7 @@ public class CustomerController implements Initializable {
             customerSsn = ssnTextField.getText().trim();
             customerName = nameTextField.getText().trim();
             customerPhone = phoneTextField.getText().trim();
+            int interger = Integer.parseInt(customerPhone);
             if (customerSsn.isEmpty() || customerName.isEmpty() || customerPhone.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
@@ -178,7 +184,11 @@ public class CustomerController implements Initializable {
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Customer not found!");
             }
-        } catch (SQLException e) {
+        } catch (NumberFormatException e) {
+            MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
+            successLabel.setTextFill(Color.RED);
+            successLabel.setText("Invalid Phone Number!");
+        }catch (SQLException e) {
             MainController.showError("Error", "Update Failed", e.getMessage());
             successLabel.setText(e.getMessage());
             successLabel.setTextFill(Color.RED);

@@ -106,6 +106,7 @@ public class ManagerController implements Initializable {
             managerId = idTextField.getText().trim();
             managerName = nameTextField.getText().trim();
             managerPhone = phoneTextField.getText().trim();
+            int Interger = Integer.parseInt(managerPhone);
             if(managerId.isEmpty() || managerName.isEmpty() || managerPhone.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
@@ -117,7 +118,11 @@ public class ManagerController implements Initializable {
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Manager added successfully!");
             }
-        }catch (SQLException e){
+        }catch (NumberFormatException e) {
+            MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
+            successLabel.setTextFill(Color.RED);
+            successLabel.setText("Invalid Phone Number!");
+        } catch (SQLException e){
             if(e.getErrorCode() == 1062){
                 MainController.showError("Error", "addation faied","Failed to add manager because already exists!. Please try again." );
                 successLabel.setTextFill(Color.RED);
@@ -163,6 +168,7 @@ public class ManagerController implements Initializable {
             managerId = idTextField.getText().trim();
             managerName = nameTextField.getText().trim();
             managerPhone = phoneTextField.getText().trim();
+            int  Interger = Integer.parseInt(managerPhone);
             if(managerId.isEmpty() || managerName.isEmpty() || managerPhone.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
@@ -179,6 +185,10 @@ public class ManagerController implements Initializable {
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Manager not found!");
             }
+        }catch (NumberFormatException e) {
+            MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
+            successLabel.setTextFill(Color.RED);
+            successLabel.setText("Invalid Phone Number!");
         }catch (SQLException e){
             MainController.showError("Error","Update Failed",e.getMessage());
             successLabel.setText(e.getMessage());
