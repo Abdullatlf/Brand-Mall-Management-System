@@ -2,22 +2,38 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ManagerController">
-   <children>
-      <Label layoutX="86.0" layoutY="14.0" text="Show Manager Operation">
-         <font>
-            <Font name="Al Bayan Bold" size="36.0" />
-         </font>
-      </Label>
-      <Button layoutX="14.0" layoutY="441.0" mnemonicParsing="false" onAction="#backToManager" text="&lt;----">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Button>
-      <ListView fx:id="managerListView" layoutX="64.0" layoutY="88.0" prefHeight="296.0" prefWidth="472.0" />
-   </children>
+    <children>
+        <Label layoutX="86.0" layoutY="14.0" text="Show Manager Operation">
+            <font>
+                <Font name="Al Bayan Bold" size="36.0" />
+            </font>
+        </Label>
+
+        <!-- TableView with Columns -->
+        <TableView fx:id="managerTableView" layoutX="64.0" layoutY="88.0" prefHeight="350.0" prefWidth="472.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="120.0" text="Manager ID" />
+                <TableColumn fx:id="nameColumn" prefWidth="200.0" text="Name" />
+                <TableColumn fx:id="phoneColumn" prefWidth="150.0" text="Phone" />
+            </columns>
+        </TableView>
+
+        <Button layoutX="14.0" layoutY="441.0" mnemonicParsing="false" onAction="#backToManager" text="&lt;----">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Button>
+
+        <Button layoutX="470.0" layoutY="441.0" mnemonicParsing="false" onAction="#refreshTable" text="Refresh">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Button>
+    </children>
 </AnchorPane>

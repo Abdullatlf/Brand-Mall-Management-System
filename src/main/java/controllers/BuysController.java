@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -28,8 +29,6 @@ public class BuysController implements Initializable {
     private Parent root;
 
     @FXML
-    private Button button;
-    @FXML
     private TextField invoiceTextField;
     @FXML
     private ComboBox<Customer> customerComboBox;
@@ -39,8 +38,16 @@ public class BuysController implements Initializable {
     private Label successLabel;
     @FXML
     private Label searchLabel;
+
+    // TableView and TableColumns
     @FXML
-    private ListView<Buys> buysListView;
+    private TableView<Buys> buysTableView;
+    @FXML
+    private TableColumn<Buys, Integer> invoiceColumn;
+    @FXML
+    private TableColumn<Buys, String> customerSsnColumn;
+    @FXML
+    private TableColumn<Buys, String> productIdColumn;
 
     public void backToMain(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
@@ -124,8 +131,10 @@ public class BuysController implements Initializable {
         } catch (SQLException e) {
             MainController.showError("Error", "Addition Failed", e.getMessage());
             successLabel.setTextFill(Color.RED);
-            successLabel.setText("Addition failed!");
+            successLabel.setText(e.getMessage());
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -146,17 +155,15 @@ public class BuysController implements Initializable {
                 MainController.showSuccess("Purchase record deleted successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Purchase deleted successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Deletion Failed", "Failed to delete purchase because record not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Purchase not found!");
+                refreshTable();
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Invoice must be a valid integer!");
             successLabel.setTextFill(Color.RED);
             successLabel.setText("Invalid Invoice Number!");
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -179,11 +186,7 @@ public class BuysController implements Initializable {
                 MainController.showSuccess("Purchase record updated successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Purchase updated successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Update Failed", "Failed to update purchase because record not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Purchase not found!");
+                refreshTable();
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Invoice must be a valid integer!");
@@ -215,10 +218,6 @@ public class BuysController implements Initializable {
                 successLabel.setText("Purchase found successfully!");
                 searchLabel.setText(buys.toString());
                 searchLabel.setTextFill(Color.GREEN);
-            } else {
-                MainController.showError("Error", "Search Failed", "Failed to find purchase because record not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Purchase not found!");
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Invoice must be a valid integer!");
@@ -233,8 +232,10 @@ public class BuysController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (buysListView != null) {
-            loadBuysToList();
+        if (buysTableView != null) {
+            setupTableColumns();
+            loadBuysToTable();
+            setupTableClickListener();
         }
         if (customerComboBox != null) {
             loadCustomersToComboBox();
@@ -244,12 +245,28 @@ public class BuysController implements Initializable {
         }
     }
 
-    private void loadBuysToList() {
+    private void setupTableColumns() {
+        invoiceColumn.setCellValueFactory(new PropertyValueFactory<>("invoice"));
+        customerSsnColumn.setCellValueFactory(new PropertyValueFactory<>("customerSsn"));
+        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("productId"));
+    }
+
+    private void loadBuysToTable() {
         List<Buys> buysList = BuysDAO.getAllBuys();
         ObservableList<Buys> observableList = FXCollections.observableArrayList(buysList);
-        if (buysListView != null) {
-            buysListView.setItems(observableList);
+        if (buysTableView != null) {
+            buysTableView.setItems(observableList);
         }
+    }
+
+    private void setupTableClickListener() {
+        buysTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                if (invoiceTextField != null) {
+                    invoiceTextField.setText(String.valueOf(newSelection.getInvoice()));
+                }
+            }
+        });
     }
 
     private void loadCustomersToComboBox() {
@@ -286,10 +303,11 @@ public class BuysController implements Initializable {
         });
     }
 
-    public void refreshList() {
-        loadBuysToList();
+    @FXML
+    public void refreshTable() {
+        loadBuysToTable();
         if (successLabel != null) {
-            successLabel.setText("List refreshed!");
+            successLabel.setText("Table refreshed!");
             successLabel.setTextFill(Color.GREEN);
         }
     }

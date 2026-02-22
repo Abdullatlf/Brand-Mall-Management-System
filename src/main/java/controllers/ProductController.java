@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -29,8 +30,6 @@ public class ProductController implements Initializable {
     private Parent root;
 
     @FXML
-    private Button button;
-    @FXML
     private TextField productIdTextField;
     @FXML
     private TextField nameTextField;
@@ -42,8 +41,18 @@ public class ProductController implements Initializable {
     private Label successLabel;
     @FXML
     private Label searchLabel;
+
+    // TableView and TableColumns
     @FXML
-    private ListView<Product> productListView;
+    private TableView<Product> productTableView;
+    @FXML
+    private TableColumn<Product, String> productIdColumn;
+    @FXML
+    private TableColumn<Product, String> nameColumn;
+    @FXML
+    private TableColumn<Product, Integer> storeNoColumn;
+    @FXML
+    private TableColumn<Product, String> brandIdColumn;
 
     public void backToMain(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
@@ -121,15 +130,17 @@ public class ProductController implements Initializable {
             }
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
-                MainController.showError("Error", "Addition Failed", "Failed to add product because already exists! Please try again.");
+                MainController.showError("Error", "Addition Failed", e.getMessage());
                 successLabel.setTextFill(Color.RED);
-                successLabel.setText("Product already exists!");
+                successLabel.setText(e.getMessage());
             } else {
                 MainController.showError("Error", "Addition Failed", e.getMessage());
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText(e.getMessage());
             }
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -149,17 +160,15 @@ public class ProductController implements Initializable {
                 MainController.showSuccess("Product deleted successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Product deleted successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Deletion Failed", "Failed to delete product because product not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Product not found!");
+                refreshTable();
             }
         } catch (ProductInPurchasesException e) {
             MainController.showError("Error", "Deletion Failed", e.getMessage());
             successLabel.setTextFill(Color.RED);
-            successLabel.setText("Product in purchases!");
+            successLabel.setText(e.getMessage());
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -181,11 +190,7 @@ public class ProductController implements Initializable {
                 MainController.showSuccess("Product updated successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Product updated successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Update Failed", "Failed to update product because product not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Product not found!");
+                refreshTable();
             }
         } catch (SQLException e) {
             MainController.showError("Error", "Update Failed", e.getMessage());
@@ -212,10 +217,6 @@ public class ProductController implements Initializable {
                 successLabel.setText("Product found successfully!");
                 searchLabel.setText(product.toString());
                 searchLabel.setTextFill(Color.GREEN);
-            } else {
-                MainController.showError("Error", "Search Failed", "Failed to find product because product not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Product not found!");
             }
         } catch (SQLException e) {
             MainController.showError("Error", "Search Failed", e.getMessage());
@@ -226,8 +227,10 @@ public class ProductController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (productListView != null) {
-            loadProductsToList();
+        if (productTableView != null) {
+            setupTableColumns();
+            loadProductsToTable();
+            setupTableClickListener();
         }
         if (brandComboBox != null) {
             loadBrandsToComboBox();
@@ -238,12 +241,32 @@ public class ProductController implements Initializable {
         }
     }
 
-    private void loadProductsToList() {
+    private void setupTableColumns() {
+        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("productId"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        storeNoColumn.setCellValueFactory(new PropertyValueFactory<>("storeNo"));
+        brandIdColumn.setCellValueFactory(new PropertyValueFactory<>("brandId"));
+    }
+
+    private void loadProductsToTable() {
         List<Product> productList = ProductDAO.getAllProducts();
         ObservableList<Product> observableList = FXCollections.observableArrayList(productList);
-        if (productListView != null) {
-            productListView.setItems(observableList);
+        if (productTableView != null) {
+            productTableView.setItems(observableList);
         }
+    }
+
+    private void setupTableClickListener() {
+        productTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                if (productIdTextField != null) {
+                    productIdTextField.setText(newSelection.getProductId());
+                }
+                if (nameTextField != null) {
+                    nameTextField.setText(newSelection.getName());
+                }
+            }
+        });
     }
 
     private void loadBrandsToComboBox() {
@@ -300,10 +323,11 @@ public class ProductController implements Initializable {
         });
     }
 
-    public void refreshList() {
-        loadProductsToList();
+    @FXML
+    public void refreshTable() {
+        loadProductsToTable();
         if (successLabel != null) {
-            successLabel.setText("List refreshed!");
+            successLabel.setText("Table refreshed!");
             successLabel.setTextFill(Color.GREEN);
         }
     }

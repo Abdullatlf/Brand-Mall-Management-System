@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import models.Customer;
@@ -28,8 +29,6 @@ public class CustomerController implements Initializable {
     private Parent root;
 
     @FXML
-    private Button button;
-    @FXML
     private TextField ssnTextField;
     @FXML
     private TextField nameTextField;
@@ -39,8 +38,15 @@ public class CustomerController implements Initializable {
     private Label successLabel;
     @FXML
     private Label searchLabel;
+
     @FXML
-    private ListView<Customer> customerListView;
+    private TableView<Customer> customerTableView;
+    @FXML
+    private TableColumn<Customer, String> ssnColumn;
+    @FXML
+    private TableColumn<Customer, String> nameColumn;
+    @FXML
+    private TableColumn<Customer, String> phoneColumn;
 
     private String customerSsn;
     private String customerName;
@@ -48,7 +54,7 @@ public class CustomerController implements Initializable {
 
     public void backToMain(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -56,7 +62,7 @@ public class CustomerController implements Initializable {
 
     public void backToCustomer(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/CUSTOMER/CUSTOMER.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -64,7 +70,7 @@ public class CustomerController implements Initializable {
 
     public void addCustomer(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/CUSTOMER/AddCustomer.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -72,7 +78,7 @@ public class CustomerController implements Initializable {
 
     public void removeCustomer(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/CUSTOMER/RemoveCustomer.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -80,7 +86,7 @@ public class CustomerController implements Initializable {
 
     public void updateCustomer(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/CUSTOMER/UpdateCustomer.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -88,7 +94,7 @@ public class CustomerController implements Initializable {
 
     public void displayCustomers(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/CUSTOMER/DisplayCustomers.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -96,7 +102,7 @@ public class CustomerController implements Initializable {
 
     public void searchCustomer(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/CUSTOMER/SearchCustomer.fxml"));
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -107,8 +113,8 @@ public class CustomerController implements Initializable {
             customerSsn = ssnTextField.getText().trim();
             customerName = nameTextField.getText().trim();
             customerPhone = phoneTextField.getText().trim();
-            int interger = Integer.parseInt(customerPhone);
-            if (customerSsn.isEmpty() || customerName.isEmpty() || customerPhone.isEmpty()) {
+            int integer = Integer.parseInt(customerPhone);
+            if(customerSsn.isEmpty() || customerName.isEmpty() || customerPhone.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please fill all text fields!");
@@ -119,17 +125,19 @@ public class CustomerController implements Initializable {
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Customer added successfully!");
             }
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
             successLabel.setTextFill(Color.RED);
             successLabel.setText("Invalid Phone Number!");
-        }catch (SQLException e) {
-            if (e.getErrorCode() == 1062) {
-                MainController.showError("Error", "Addition Failed", "Failed to add customer because already exists! Please try again.");
+        } catch (SQLException e) {
+            if(e.getErrorCode() == 1062) {
+                MainController.showError("Error", "Addition Failed", e.getMessage());
                 successLabel.setTextFill(Color.RED);
-                successLabel.setText("Customer already exists!");
+                successLabel.setText(e.getMessage());
             }
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -137,26 +145,22 @@ public class CustomerController implements Initializable {
     public void remove(ActionEvent event) {
         try {
             customerSsn = ssnTextField.getText().trim();
-            if (customerSsn.isEmpty()) {
+            if(customerSsn.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please enter a Customer SSN!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please enter Customer SSN!");
                 return;
             }
-            if (CustomerDAO.deleteCustomer(customerSsn)) {
+            if(CustomerDAO.deleteCustomer(customerSsn)) {
                 MainController.showSuccess("Customer deleted successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Customer deleted successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Deletion Failed", "Failed to delete customer because customer not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Customer not found!");
+                refreshTable();
             }
         } catch (CustomerHasPurchasesException e) {
             MainController.showError("Error", "Deletion Failed", e.getMessage());
             successLabel.setTextFill(Color.RED);
-            successLabel.setText("Customer still has purchases!");
+            successLabel.setText(e.getMessage());
         } catch (Exception e) {
             successLabel.setText(e.getMessage());
         }
@@ -167,8 +171,8 @@ public class CustomerController implements Initializable {
             customerSsn = ssnTextField.getText().trim();
             customerName = nameTextField.getText().trim();
             customerPhone = phoneTextField.getText().trim();
-            int interger = Integer.parseInt(customerPhone);
-            if (customerSsn.isEmpty() || customerName.isEmpty() || customerPhone.isEmpty()) {
+            int integer = Integer.parseInt(customerPhone);
+            if(customerSsn.isEmpty() || customerName.isEmpty() || customerPhone.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please fill all text fields!");
@@ -178,17 +182,13 @@ public class CustomerController implements Initializable {
                 MainController.showSuccess("Customer updated successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Customer updated successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Update Failed", "Failed to update customer because customer not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Customer not found!");
+                refreshTable();
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
             successLabel.setTextFill(Color.RED);
             successLabel.setText("Invalid Phone Number!");
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             MainController.showError("Error", "Update Failed", e.getMessage());
             successLabel.setText(e.getMessage());
             successLabel.setTextFill(Color.RED);
@@ -198,23 +198,19 @@ public class CustomerController implements Initializable {
     public void search(ActionEvent event) {
         try {
             customerSsn = ssnTextField.getText().trim();
-            if (customerSsn.isEmpty()) {
+            if(customerSsn.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please enter a Customer SSN!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please enter Customer SSN!");
                 return;
             }
             Customer customer = CustomerDAO.searchCustomer(customerSsn);
-            if (customer != null) {
+            if(customer != null) {
                 MainController.showSuccess("Customer found successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Customer found successfully!");
                 searchLabel.setText(customer.toString());
                 searchLabel.setTextFill(Color.GREEN);
-            } else {
-                MainController.showError("Error", "Search Failed", "Failed to find customer because customer not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Customer not found!");
             }
         } catch (SQLException e) {
             MainController.showError("Error", "Search Failed", e.getMessage());
@@ -225,23 +221,48 @@ public class CustomerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (customerListView != null) {
-            loadCustomersToList();
+        if (customerTableView != null) {
+            setupTableColumns();
+            loadCustomersToTable();
+            setupTableClickListener();
         }
     }
 
-    private void loadCustomersToList() {
+    private void setupTableColumns() {
+        ssnColumn.setCellValueFactory(new PropertyValueFactory<>("ssn"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+    }
+
+    private void loadCustomersToTable() {
         List<Customer> customerList = CustomerDAO.getAllCustomers();
         ObservableList<Customer> observableList = FXCollections.observableArrayList(customerList);
-        if (customerListView != null) {
-            customerListView.setItems(observableList);
+        if (customerTableView != null) {
+            customerTableView.setItems(observableList);
         }
     }
 
-    public void refreshList() {
-        loadCustomersToList();
+    private void setupTableClickListener() {
+        customerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                if (ssnTextField != null) {
+                    ssnTextField.setText(newSelection.getSsn());
+                }
+                if (nameTextField != null) {
+                    nameTextField.setText(newSelection.getName());
+                }
+                if (phoneTextField != null) {
+                    phoneTextField.setText(newSelection.getPhone());
+                }
+            }
+        });
+    }
+
+    @FXML
+    public void refreshTable() {
+        loadCustomersToTable();
         if (successLabel != null) {
-            successLabel.setText("List refreshed!");
+            successLabel.setText("Table refreshed!");
             successLabel.setTextFill(Color.GREEN);
         }
     }

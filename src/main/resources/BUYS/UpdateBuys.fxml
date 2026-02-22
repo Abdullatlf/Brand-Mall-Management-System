@@ -3,51 +3,72 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BuysController">
+<AnchorPane prefHeight="650.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BuysController">
     <children>
         <Label layoutX="64.0" layoutY="14.0" text="Update Purchase Operation">
             <font>
                 <Font name="Al Bayan Bold" size="36.0" />
             </font>
         </Label>
-        <Label layoutX="70.0" layoutY="240.0" text="Invoice : ">
+
+        <!-- TableView with Columns -->
+        <TableView fx:id="buysTableView" layoutX="64.0" layoutY="70.0" prefHeight="200.0" prefWidth="472.0">
+            <columns>
+                <TableColumn fx:id="invoiceColumn" prefWidth="120.0" text="Invoice" />
+                <TableColumn fx:id="customerSsnColumn" prefWidth="180.0" text="Customer SSN" />
+                <TableColumn fx:id="productIdColumn" prefWidth="170.0" text="Product ID" />
+            </columns>
+        </TableView>
+
+        <Button layoutX="450.0" layoutY="280.0" mnemonicParsing="false" onAction="#refreshTable" text="Refresh">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Button>
+
+        <Label layoutX="70.0" layoutY="320.0" text="Invoice : ">
             <font>
                 <Font size="24.0" />
             </font>
         </Label>
-        <Label layoutX="40.0" layoutY="280.0" text="Customer : ">
+        <TextField fx:id="invoiceTextField" layoutX="170.0" layoutY="322.0" prefWidth="150.0" />
+
+        <Label layoutX="40.0" layoutY="360.0" text="Customer : ">
             <font>
                 <Font size="24.0" />
             </font>
         </Label>
-        <Label layoutX="60.0" layoutY="320.0" text="Product : ">
+        <ComboBox fx:id="customerComboBox" layoutX="170.0" layoutY="362.0" prefWidth="250.0" />
+
+        <Label layoutX="60.0" layoutY="400.0" text="Product : ">
             <font>
                 <Font size="24.0" />
             </font>
         </Label>
-        <TextField fx:id="invoiceTextField" layoutX="170.0" layoutY="242.0" prefWidth="150.0" />
-        <ComboBox fx:id="customerComboBox" layoutX="170.0" layoutY="282.0" prefWidth="250.0" />
-        <ComboBox fx:id="productComboBox" layoutX="170.0" layoutY="322.0" prefWidth="250.0" />
-        <Button fx:id="button" layoutX="220.0" layoutY="370.0" mnemonicParsing="false" onAction="#update" text="Update Purchase">
+        <ComboBox fx:id="productComboBox" layoutX="170.0" layoutY="402.0" prefWidth="250.0" />
+
+        <Button layoutX="220.0" layoutY="450.0" mnemonicParsing="false" onAction="#update" text="Update Purchase">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
         </Button>
-        <Label fx:id="successLabel" alignment="CENTER" layoutX="15.0" layoutY="420.0" prefHeight="23.0" prefWidth="600.0" textAlignment="JUSTIFY">
+
+        <Label fx:id="successLabel" alignment="CENTER" layoutX="15.0" layoutY="500.0" prefHeight="23.0" prefWidth="600.0" textAlignment="JUSTIFY">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
         </Label>
-        <Button layoutX="14.0" layoutY="441.0" mnemonicParsing="false" onAction="#backToBuys" text="&lt;----">
+
+        <Button layoutX="14.0" layoutY="580.0" mnemonicParsing="false" onAction="#backToBuys" text="&lt;----">
             <font>
                 <Font size="24.0" />
             </font>
         </Button>
-        <ListView fx:id="buysListView" layoutX="64.0" layoutY="70.0" prefHeight="150.0" prefWidth="472.0" />
     </children>
 </AnchorPane>

@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import models.Brand;
@@ -28,8 +29,6 @@ public class BrandController implements Initializable {
     private Parent root;
 
     @FXML
-    private Button button;
-    @FXML
     private TextField idTextField;
     @FXML
     private TextField nameTextField;
@@ -37,8 +36,13 @@ public class BrandController implements Initializable {
     private Label successLabel;
     @FXML
     private Label searchLabel;
+
     @FXML
-    private ListView<Brand> brandListView;
+    private TableView<Brand> brandTableView;
+    @FXML
+    private TableColumn<Brand, String> idColumn;
+    @FXML
+    private TableColumn<Brand, String> nameColumn;
 
     private String brandId;
     private String brandName;
@@ -103,12 +107,14 @@ public class BrandController implements Initializable {
         try {
             brandId = idTextField.getText().trim();
             brandName = nameTextField.getText().trim();
+
             if(brandId.isEmpty() || brandName.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please fill all text fields!");
                 return;
             }
+
             if (BrandDAO.addBrand(brandId, brandName)) {
                 MainController.showSuccess("Successfully added brand!");
                 successLabel.setTextFill(Color.GREEN);
@@ -116,11 +122,13 @@ public class BrandController implements Initializable {
             }
         } catch (SQLException e) {
             if(e.getErrorCode() == 1062) {
-                MainController.showError("Error", "Addition Failed","Brand already exists!");
+                MainController.showError("Error", "Addition Failed", e.getMessage());
                 successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand already exists!");
+                successLabel.setText(e.getMessage());
             }
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -128,27 +136,27 @@ public class BrandController implements Initializable {
     public void remove(ActionEvent event) {
         try {
             brandId = idTextField.getText().trim();
+
             if(brandId.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please enter a Brand ID!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please enter Brand ID!");
                 return;
             }
+
             if(BrandDAO.deleteBrand(brandId)) {
                 MainController.showSuccess("Brand deleted successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Brand deleted successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error","Deletion Failed","Brand not found!");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand not found!");
+                refreshTable();
             }
         } catch (BrandStillUsedException e) {
-            MainController.showError("Error","Deletion Failed",e.getMessage());
+            MainController.showError("Error", "Deletion Failed", e.getMessage());
             successLabel.setTextFill(Color.RED);
-            successLabel.setText("Brand still has stores!");
+            successLabel.setText(e.getMessage());
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -157,38 +165,42 @@ public class BrandController implements Initializable {
         try {
             brandId = idTextField.getText().trim();
             brandName = nameTextField.getText().trim();
+
             if(brandId.isEmpty() || brandName.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please fill all text fields!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please fill all text fields!");
                 return;
             }
+
             if (BrandDAO.updateBrand(brandId, brandName)) {
                 MainController.showSuccess("Brand updated successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Brand updated successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error","Update Failed","Brand not found!");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand not found!");
+                refreshTable();
             }
         } catch (SQLException e) {
-            MainController.showError("Error","Update Failed",e.getMessage());
+            MainController.showError("Error", "Update Failed", e.getMessage());
             successLabel.setText(e.getMessage());
             successLabel.setTextFill(Color.RED);
+        } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
+            successLabel.setText(e.getMessage());
         }
     }
 
     public void search(ActionEvent event) {
         try {
             brandId = idTextField.getText().trim();
+
             if(brandId.isEmpty()) {
                 MainController.showError("Error", "Empty Field", "Please enter a Brand ID!");
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Please enter Brand ID!");
                 return;
             }
+
             Brand brand = BrandDAO.searchBrand(brandId);
             if(brand != null) {
                 MainController.showSuccess("Brand found successfully!");
@@ -196,38 +208,58 @@ public class BrandController implements Initializable {
                 successLabel.setText("Brand found successfully!");
                 searchLabel.setText(brand.toString());
                 searchLabel.setTextFill(Color.GREEN);
-            } else {
-                MainController.showError("Error","Search Failed","Brand not found!");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand not found!");
             }
         } catch (SQLException e) {
-            MainController.showError("Error","Search Failed",e.getMessage());
+            MainController.showError("Error", "Search Failed", e.getMessage());
             successLabel.setText(e.getMessage());
             successLabel.setTextFill(Color.RED);
+        } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
+            successLabel.setText(e.getMessage());
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (brandListView != null) {
-            loadBrandsToList();
+        if (brandTableView != null) {
+            setupTableColumns();
+            loadBrandsToTable();
+            setupTableClickListener();
         }
     }
 
-    private void loadBrandsToList() {
+    private void setupTableColumns() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("brandId"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+    }
+
+    private void loadBrandsToTable() {
         List<Brand> brandList = BrandDAO.getAllBrands();
         ObservableList<Brand> observableList = FXCollections.observableArrayList(brandList);
-        if (brandListView != null) {
-            brandListView.setItems(observableList);
+        if (brandTableView != null) {
+            brandTableView.setItems(observableList);
         }
+    }
+
+    private void setupTableClickListener() {
+        brandTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                if (idTextField != null) {
+                    idTextField.setText(newSelection.getBrandId());
+                }
+                if (nameTextField != null) {
+                    nameTextField.setText(newSelection.getName());
+                }
+            }
+        });
     }
 
     @FXML
-    public void refreshList() {
-        loadBrandsToList();
+    public void refreshTable() {
+        loadBrandsToTable();
         if (successLabel != null) {
-            successLabel.setText("List refreshed!");
+            successLabel.setText("Table refreshed!");
             successLabel.setTextFill(Color.GREEN);
         }
     }

@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import models.Manager;
@@ -37,13 +38,20 @@ public class ManagerController implements Initializable {
     private Label successLabel;
     @FXML
     private Label searchLabel;
+
+    // TableView and TableColumns
     @FXML
-    private ListView<Manager> managerListView;
+    private TableView<Manager> managerTableView;
+    @FXML
+    private TableColumn<Manager, String> idColumn;
+    @FXML
+    private TableColumn<Manager, String> nameColumn;
+    @FXML
+    private TableColumn<Manager, String> phoneColumn;
 
     private String managerId;
     private String managerName;
     private String managerPhone;
-
 
     public void backToMain(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
@@ -52,6 +60,7 @@ public class ManagerController implements Initializable {
         stage.setScene(scene);
         stage.show();
     }
+
     public void backToManager(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/MANAGER/MANAGER.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -59,47 +68,46 @@ public class ManagerController implements Initializable {
         stage.setScene(scene);
         stage.show();
     }
+
     public void addManager(ActionEvent event) throws IOException {
-        //System.out.println("addManager");
         root = FXMLLoader.load(getClass().getResource("/MANAGER/AddManager.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
+
     public void removeManager(ActionEvent event) throws IOException {
-        //System.out.println("removeManager");
         root = FXMLLoader.load(getClass().getResource("/MANAGER/RemoveManager.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
+
     public void updateManager(ActionEvent event) throws IOException {
-        //System.out.println("updateManager");
         root = FXMLLoader.load(getClass().getResource("/MANAGER/UpdateManager.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
+
     public void displayManagers(ActionEvent event) throws IOException {
-        //System.out.println("displayManagers");
         root = FXMLLoader.load(getClass().getResource("/MANAGER/DisplayManagers.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
+
     public void searchManager(ActionEvent event) throws IOException {
-        //System.out.println("searchManager");
         root = FXMLLoader.load(getClass().getResource("/MANAGER/SearchManager.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
-
 
     public void add(ActionEvent event){
         try {
@@ -124,11 +132,13 @@ public class ManagerController implements Initializable {
             successLabel.setText("Invalid Phone Number!");
         } catch (SQLException e){
             if(e.getErrorCode() == 1062){
-                MainController.showError("Error", "addation faied","Failed to add manager because already exists!. Please try again." );
+                MainController.showError("Error", "Addition Failed ",e.getMessage() );
                 successLabel.setTextFill(Color.RED);
-                successLabel.setText("Manager already exists!");
+                successLabel.setText(e.getMessage());
             }
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed ",e.getMessage() );
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -146,21 +156,16 @@ public class ManagerController implements Initializable {
                 MainController.showSuccess("Manager deleted successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Manager deleted successfully!");
-                refreshList();
-            }else {
-                MainController.showError("Error","Deletion Failed","Failed to delete manager because manager not found!. Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Manager not found!");
+                refreshTable();
             }
         }catch (ManagerStillAssignedException e){
             MainController.showError("Error","Deletion Failed",e.getMessage());
             successLabel.setTextFill(Color.RED);
-            successLabel.setText("Manager still assigned to stores!");
+            successLabel.setText(e.getMessage());
         }
         catch (Exception e){
             successLabel.setText(e.getMessage());
         }
-
     }
 
     public void update(ActionEvent event){
@@ -179,11 +184,7 @@ public class ManagerController implements Initializable {
                 MainController.showSuccess("Manager updated successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Manager updated successfully!");
-                refreshList();
-            }else {
-                MainController.showError("Error","Update Failed","Failed to update manager because manager not found!. Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Manager not found!");
+                refreshTable();
             }
         }catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Phone Number must be a valid integer!");
@@ -212,38 +213,59 @@ public class ManagerController implements Initializable {
                 successLabel.setText("Manager found successfully!");
                 searchLabel.setText(manager.toString());
                 searchLabel.setTextFill(Color.GREEN);
-            }else{
-                MainController.showError("Error","Search Failed","Failed to find manager because manager not found!. Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Manager not found!");
             }
         }catch (SQLException e){
             MainController.showError("Error","Search Failed",e.getMessage());
             successLabel.setText(e.getMessage());
             successLabel.setTextFill(Color.RED);
         }
-
     }
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (managerListView != null) {
-            loadManagersToList();
+        if (managerTableView != null) {
+            setupTableColumns();
+            loadManagersToTable();
+            setupTableClickListener();
         }
     }
-    private void loadManagersToList(){
+
+    private void setupTableColumns() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("managerId"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+    }
+
+    private void loadManagersToTable(){
         List<Manager> managerList = ManagerDAO.getAllManagers();
         ObservableList<Manager> observableList = FXCollections.observableArrayList(managerList);
-        if (managerListView != null) {
-            managerListView.setItems(observableList);
+        if (managerTableView != null) {
+            managerTableView.setItems(observableList);
         }
     }
+
+    private void setupTableClickListener() {
+        managerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                if (idTextField != null) {
+                    idTextField.setText(newSelection.getManagerId());
+                }
+
+                if (nameTextField != null) {
+                    nameTextField.setText(newSelection.getName());
+                }
+                if (phoneTextField != null) {
+                    phoneTextField.setText(newSelection.getPhone());
+                }
+            }
+        });
+    }
+
     @FXML
-    public void refreshList() {
-        loadManagersToList();
+    public void refreshTable() {
+        loadManagersToTable();
         if (successLabel != null) {
-            successLabel.setText("List refreshed!");
+            successLabel.setText("Table refreshed!");
             successLabel.setTextFill(Color.GREEN);
         }
     }

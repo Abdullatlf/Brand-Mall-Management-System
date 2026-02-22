@@ -2,51 +2,72 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ManagerController">
-   <children>
-      <Label layoutX="64.0" layoutY="14.0" text="Update Manager Operation">
-         <font>
-            <Font name="Al Bayan Bold" size="36.0" />
-         </font>
-      </Label>
-      <Label layoutX="102.0" layoutY="299.0" text="Manager ID : ">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Label>
-      <TextField fx:id="idTextField" layoutX="234.0" layoutY="301.0" />
-      <Button fx:id="button" layoutX="239.0" layoutY="424.0" mnemonicParsing="false" onAction="#update" text="Update Manager">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Button>
-      <Label fx:id="successLabel" alignment="CENTER" layoutX="15.0" layoutY="464.0" prefHeight="23.0" prefWidth="600.0" textAlignment="JUSTIFY">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Label>
-      <Button layoutX="14.0" layoutY="441.0" mnemonicParsing="false" onAction="#backToManager" text="&lt;----">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Button>
-      <ListView fx:id="managerListView" layoutX="64.0" layoutY="87.0" prefHeight="200.0" prefWidth="472.0" />
-      <Label layoutX="64.0" layoutY="379.0" text="Phone Number : ">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Label>
-      <Label layoutX="103.0" layoutY="342.0" text="Full Name    : " textAlignment="CENTER">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Label>
-      <TextField fx:id="nameTextField" layoutX="234.0" layoutY="344.0" />
-      <TextField fx:id="phoneTextField" layoutX="234.0" layoutY="381.0" />
-   </children>
+<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ManagerController">
+    <children>
+        <Label layoutX="64.0" layoutY="14.0" text="Update Manager Operation">
+            <font>
+                <Font name="Al Bayan Bold" size="36.0" />
+            </font>
+        </Label>
+
+        <!-- TableView with Columns -->
+        <TableView fx:id="managerTableView" layoutX="64.0" layoutY="87.0" prefHeight="200.0" prefWidth="472.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="120.0" text="Manager ID" />
+                <TableColumn fx:id="nameColumn" prefWidth="200.0" text="Name" />
+                <TableColumn fx:id="phoneColumn" prefWidth="150.0" text="Phone" />
+            </columns>
+        </TableView>
+
+        <Button layoutX="450.0" layoutY="297.0" mnemonicParsing="false" onAction="#refreshTable" text="Refresh">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Button>
+
+        <Label layoutX="102.0" layoutY="340.0" text="Manager ID : ">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+        <TextField fx:id="idTextField" layoutX="234.0" layoutY="342.0" />
+
+        <Label layoutX="103.0" layoutY="380.0" text="Full Name    : " textAlignment="CENTER">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+        <TextField fx:id="nameTextField" layoutX="234.0" layoutY="382.0" />
+
+        <Label layoutX="64.0" layoutY="420.0" text="Phone Number : ">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+        <TextField fx:id="phoneTextField" layoutX="234.0" layoutY="422.0" />
+
+        <Button layoutX="239.0" layoutY="470.0" mnemonicParsing="false" onAction="#update" text="Update Manager">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Button>
+
+        <Label fx:id="successLabel" alignment="CENTER" layoutX="15.0" layoutY="520.0" prefHeight="23.0" prefWidth="600.0" textAlignment="JUSTIFY">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+
+        <Button layoutX="14.0" layoutY="540.0" mnemonicParsing="false" onAction="#backToManager" text="&lt;----">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Button>
+    </children>
 </AnchorPane>

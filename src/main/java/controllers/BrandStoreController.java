@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -29,8 +30,6 @@ public class BrandStoreController implements Initializable {
     private Parent root;
 
     @FXML
-    private Button button;
-    @FXML
     private TextField storeNoTextField;
     @FXML
     private TextField addressTextField;
@@ -46,8 +45,20 @@ public class BrandStoreController implements Initializable {
     private Label successLabel;
     @FXML
     private Label searchLabel;
+
+    // TableView and TableColumns
     @FXML
-    private ListView<BrandStore> storeListView;
+    private TableView<BrandStore> storeTableView;
+    @FXML
+    private TableColumn<BrandStore, Integer> storeNoColumn;
+    @FXML
+    private TableColumn<BrandStore, String> addressColumn;
+    @FXML
+    private TableColumn<BrandStore, String> brandIdColumn;
+    @FXML
+    private TableColumn<BrandStore, String> managerIdColumn;
+    @FXML
+    private TableColumn<BrandStore, String> mallIdColumn;
 
     public void backToMain(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
@@ -132,15 +143,17 @@ public class BrandStoreController implements Initializable {
             successLabel.setText("Invalid Store Number!");
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
-                MainController.showError("Error", "Addition Failed", "Failed to add brand store because already exists! Please try again.");
+                MainController.showError("Error", "Addition Failed", e.getMessage());
                 successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand Store already exists!");
+                successLabel.setText(e.getMessage());
             } else {
                 MainController.showError("Error", "Addition Failed", e.getMessage());
                 successLabel.setTextFill(Color.RED);
                 successLabel.setText("Addition failed!");
             }
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -162,11 +175,7 @@ public class BrandStoreController implements Initializable {
                 MainController.showSuccess("Brand Store deleted successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Brand Store deleted successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Deletion Failed", "Failed to delete brand store because store not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand Store not found!");
+                refreshTable();
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Store Number must be a valid integer!");
@@ -175,8 +184,10 @@ public class BrandStoreController implements Initializable {
         } catch (StoreHasProductsException e) {
             MainController.showError("Error", "Deletion Failed", e.getMessage());
             successLabel.setTextFill(Color.RED);
-            successLabel.setText("Store still has products!");
+            successLabel.setText(e.getMessage());
         } catch (Exception e) {
+            MainController.showError("Error", "Operation Failed", e.getMessage());
+            successLabel.setTextFill(Color.RED);
             successLabel.setText(e.getMessage());
         }
     }
@@ -201,11 +212,7 @@ public class BrandStoreController implements Initializable {
                 MainController.showSuccess("Brand Store updated successfully!");
                 successLabel.setTextFill(Color.GREEN);
                 successLabel.setText("Brand Store updated successfully!");
-                refreshList();
-            } else {
-                MainController.showError("Error", "Update Failed", "Failed to update brand store because store not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand Store not found!");
+                refreshTable();
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Store Number must be a valid integer!");
@@ -238,10 +245,6 @@ public class BrandStoreController implements Initializable {
                 successLabel.setText("Brand Store found successfully!");
                 searchLabel.setText(store.toString());
                 searchLabel.setTextFill(Color.GREEN);
-            } else {
-                MainController.showError("Error", "Search Failed", "Failed to find brand store because store not found! Please try again.");
-                successLabel.setTextFill(Color.RED);
-                successLabel.setText("Brand Store not found!");
             }
         } catch (NumberFormatException e) {
             MainController.showError("Error", "Invalid Input", "Store Number must be a valid integer!");
@@ -256,8 +259,10 @@ public class BrandStoreController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (storeListView != null) {
-            loadStoresToList();
+        if (storeTableView != null) {
+            setupTableColumns();
+            loadStoresToTable();
+            setupTableClickListener();
         }
         if (brandComboBox != null) {
             loadBrandsToComboBox();
@@ -270,12 +275,36 @@ public class BrandStoreController implements Initializable {
         }
     }
 
-    private void loadStoresToList() {
+    private void setupTableColumns() {
+        storeNoColumn.setCellValueFactory(new PropertyValueFactory<>("storeNo"));
+        addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        brandIdColumn.setCellValueFactory(new PropertyValueFactory<>("brandId"));
+        managerIdColumn.setCellValueFactory(new PropertyValueFactory<>("managerId"));
+        mallIdColumn.setCellValueFactory(new PropertyValueFactory<>("mallId"));
+    }
+
+    private void loadStoresToTable() {
         List<BrandStore> storeList = BrandStoreDAO.getAllBrandStores();
         ObservableList<BrandStore> observableList = FXCollections.observableArrayList(storeList);
-        if (storeListView != null) {
-            storeListView.setItems(observableList);
+        if (storeTableView != null) {
+            storeTableView.setItems(observableList);
         }
+    }
+
+    private void setupTableClickListener() {
+        storeTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                if (storeNoTextField != null) {
+                    storeNoTextField.setText(String.valueOf(newSelection.getStoreNo()));
+                }
+                if (brandIdTextField != null) {
+                    brandIdTextField.setText(newSelection.getBrandId());
+                }
+                if (addressTextField != null) {
+                    addressTextField.setText(newSelection.getAddress());
+                }
+            }
+        });
     }
 
     private void loadBrandsToComboBox() {
@@ -329,10 +358,11 @@ public class BrandStoreController implements Initializable {
         });
     }
 
-    public void refreshList() {
-        loadStoresToList();
+    @FXML
+    public void refreshTable() {
+        loadStoresToTable();
         if (successLabel != null) {
-            successLabel.setText("List refreshed!");
+            successLabel.setText("Table refreshed!");
             successLabel.setTextFill(Color.GREEN);
         }
     }

@@ -2,22 +2,40 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BrandStoreController">
+<AnchorPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BrandStoreController">
     <children>
         <Label layoutX="50.0" layoutY="14.0" text="Show Brand Store Operation">
             <font>
                 <Font name="Al Bayan Bold" size="36.0" />
             </font>
         </Label>
+
+        <!-- TableView with Columns -->
+        <TableView fx:id="storeTableView" layoutX="20.0" layoutY="88.0" prefHeight="350.0" prefWidth="660.0">
+            <columns>
+                <TableColumn fx:id="storeNoColumn" prefWidth="80.0" text="Store No" />
+                <TableColumn fx:id="brandIdColumn" prefWidth="100.0" text="Brand ID" />
+                <TableColumn fx:id="addressColumn" prefWidth="200.0" text="Address" />
+                <TableColumn fx:id="managerIdColumn" prefWidth="130.0" text="Manager ID" />
+                <TableColumn fx:id="mallIdColumn" prefWidth="148.0" text="Mall ID" />
+            </columns>
+        </TableView>
+
         <Button layoutX="14.0" layoutY="441.0" mnemonicParsing="false" onAction="#backToBrandStore" text="&lt;----">
             <font>
                 <Font size="24.0" />
             </font>
         </Button>
-        <ListView fx:id="storeListView" layoutX="20.0" layoutY="88.0" prefHeight="296.0" prefWidth="560.0" />
+
+        <Button layoutX="610.0" layoutY="441.0" mnemonicParsing="false" onAction="#refreshTable" text="Refresh">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Button>
     </children>
 </AnchorPane>

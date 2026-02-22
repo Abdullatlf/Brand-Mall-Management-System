@@ -28,7 +28,7 @@
                 <Font size="24.0" />
             </font>
         </Label>
-        <TextField fx:id="idTextField" layoutX="231.0" layoutY="163.0" />
+        <TextField fx:id="mallIdTextField" layoutX="231.0" layoutY="163.0" />
         <TextField fx:id="nameTextField" layoutX="231.0" layoutY="203.0" />
         <TextField fx:id="locationTextField" layoutX="231.0" layoutY="246.0" />
         <Button layoutX="19.0" layoutY="441.0" mnemonicParsing="false" onAction="#backToMall" text="&lt;----">
