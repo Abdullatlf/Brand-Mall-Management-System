@@ -15,8 +15,8 @@ A JavaFX desktop application for managing shopping mall operations, including st
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/mall-management-system.git
-   cd mall-management-system
+   git clone https://github.com/Abdullatlf/Brand-Mall-Management-System.git
+   cd Brand-Mall-Management-System
    ```
 
 2. **Configure JavaFX** (IntelliJ IDEA)
